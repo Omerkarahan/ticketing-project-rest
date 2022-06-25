@@ -42,6 +42,7 @@ public class LoggingAspect {
     @AfterThrowing(pointcut = "anyControllerOperation()", throwing = "exception")
     public void anyAfterThrowingControllerOperationAdvice(JoinPoint joinPoint, RuntimeException exception) {
         String username = getUserName();
-        logger.info("AfterThrowing  -> User : {} - Method : {} - Exception: {}", username, joinPoint.getSignature().toShortString(),exception.getMessage());
+        logger.info("AfterThrowing  -> User : {} - Method : {} - Exception: {}", username, joinPoint.getSignature().toShortString(), exception.getMessage());
     }
+
 }
