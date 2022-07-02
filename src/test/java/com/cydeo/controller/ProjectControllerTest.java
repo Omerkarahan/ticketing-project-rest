@@ -97,6 +97,21 @@ class ProjectControllerTest {
 
     }
 
+    @Test
+    public void givenToken_updateProject() throws Exception {
+
+        projectDTO.setProjectName("Api-cydeo");
+
+        mvc.perform(MockMvcRequestBuilders
+                .put("/api/v1/project")
+                .header("Authorization", token)
+                .content(toJsonString(projectDTO))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("message").value("Project is successfully updated"));
+
+    }
+
     private static String toJsonString(final Object obj) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
