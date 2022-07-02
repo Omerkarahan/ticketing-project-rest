@@ -1,6 +1,7 @@
 package com.cydeo.controller;
 
 import com.cydeo.dto.ProjectDTO;
+import com.cydeo.dto.ResponseDTO;
 import com.cydeo.dto.RoleDTO;
 import com.cydeo.dto.UserDTO;
 import com.cydeo.enums.Gender;
@@ -13,10 +14,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 
@@ -38,7 +42,7 @@ class ProjectControllerTest {
     @BeforeAll
     static void setUp() {
 
-        token = "";
+        token = "Bearer " + makeRequest();
 
         userDTO = UserDTO.builder()
                 .id(2L)
@@ -112,6 +116,17 @@ class ProjectControllerTest {
 
     }
 
+    @Test
+    public void givenToken_deleteProject() throws Exception {
+
+        mvc.perform(MockMvcRequestBuilders
+                .delete("/api/v1/project/" + projectDTO.getProjectCode())
+                .header("Authorization", token)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+    }
+
     private static String toJsonString(final Object obj) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
@@ -121,6 +136,37 @@ class ProjectControllerTest {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private static String makeRequest() {
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("grant_type", "password");
+        map.add("client_id", "ticketing-app");
+        map.add("client_secret", "zn1xr4X3jK2BVou8oCOr2L4Cae2aOPN5");
+        map.add("username", "Ozzy");
+        map.add("password", "Abc1");
+        map.add("scope", "openid");
+
+        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
+
+        ResponseEntity<ResponseDTO> response =
+                restTemplate.exchange("http://localhost:8080/auth/realms/cydeo-dev/protocol/openid-connect/token",
+                        HttpMethod.POST,
+                        entity,
+                        ResponseDTO.class);
+
+        if (response.getBody() != null) {
+            return response.getBody().getAccess_token();
+        }
+
+        return "";
+
     }
 
 }
