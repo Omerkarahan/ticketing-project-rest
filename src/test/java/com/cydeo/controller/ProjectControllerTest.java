@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -28,8 +29,12 @@ class ProjectControllerTest {
     static UserDTO userDTO;
     static ProjectDTO projectDTO;
 
+    static String token;
+
     @BeforeAll
     static void setUp() {
+
+        token = "";
 
         userDTO = UserDTO.builder()
                 .id(2L)
@@ -63,6 +68,15 @@ class ProjectControllerTest {
 
     }
 
+    @Test
+    public void givenToken_whenGetRequest() throws Exception {
 
+        mvc.perform(MockMvcRequestBuilders
+                .get("/api/v1/project")
+                .header("Authorization", token)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+    }
 
 }
